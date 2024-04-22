@@ -1,0 +1,24 @@
+; nvt.mdp - Extended NVT equilibration with gradual heating
+define               = -DPOSRES  ; Apply position restraints to backbone
+integrator           = md
+nsteps               = 100000    ; Double the number of steps for longer equilibration
+dt                   = 0.002
+nstxout              = 1000
+nstvout              = 1000
+nstenergy            = 500
+nstlog               = 500
+continuation         = no
+constraint_algorithm = lincs
+constraints          = all-bonds
+lincs_iter           = 1
+lincs_order          = 4
+coulombtype          = PME
+rcoulomb             = 1.0
+rvdw                 = 1.0
+tcoupl               = V-rescale
+tc-grps              = Protein Non-Protein
+tau_t                = 0.1 0.1
+ref_t                = 100 300    ; Start at lower temperature and warm up to 300K
+gen_vel              = yes
+gen_temp             = 100
+gen_seed             = -1

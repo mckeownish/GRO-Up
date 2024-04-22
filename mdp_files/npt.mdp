@@ -1,0 +1,27 @@
+; npt.mdp - Extended NPT equilibration
+define               = -DPOSRES
+integrator           = md
+nsteps               = 100000    ; Increased for extended equilibration
+dt                   = 0.002
+nstxout              = 1000
+nstvout              = 1000
+nstenergy            = 500
+nstlog               = 500
+continuation         = yes       ; Assuming continuation from NVT
+constraint_algorithm = lincs
+constraints          = all-bonds
+lincs_iter           = 1
+lincs_order          = 4
+coulombtype          = PME
+rcoulomb             = 1.0
+rvdw                 = 1.0
+tcoupl               = Nose-Hoover
+tc-grps              = Protein Non-Protein
+tau_t                = 0.5 0.5
+ref_t                = 300 300
+pcoupl               = Parrinello-Rahman
+pcoupltype           = isotropic
+tau_p                = 2.0
+compressibility      = 4.5e-5
+ref_p                = 1.0
+gen_vel              = no
