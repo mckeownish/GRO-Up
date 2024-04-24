@@ -1,4 +1,4 @@
-# Ooh for goodness sake, GRO-Up
+# Oh for goodness sake, its always a pun with you, GRO-Up.
 
 Hate GROMACS' convoluted simulation setup process? This is a simple bash program to generate topology, box + solvate, add ions, minimise energy and equilibriate with nvt + npt. 
 
