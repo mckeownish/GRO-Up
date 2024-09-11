@@ -1,7 +1,22 @@
 #!/bin/bash
 
-# Define GROMACS executable
-module load gromacs/2023.5
+# SLURM Job Configuration
+
+#SBATCH --partition=multi              # Partition name, change as necessary
+#SBATCH --job-name="GRO-Up"        # Job name
+#SBATCH --output=job.%j.out           # Standard output (stdout)
+#SBATCH --error=job.%j.err            # Standard error (stderr)
+
+#SBATCH --ntasks=192                   # Number of tasks (MPI processes)
+#SBATCH --cpus-per-task=2              # Number of CPU cores per task
+#SBATCH --nodes=3                      # Number of nodes
+#SBATCH --time=72:00:00               # Job time limit (HH:MM:SS)
+#SBATCH --gres=tmp:100G               # Temporary storage request
+#SBATCH --mem=128G                    # Memory request
+
+
+module load gromacs/2023.4
+
 
 # Loop over PDB files in the pdbs directory
 for pdbfile in ../pdbs/*.pdb; do
@@ -11,7 +26,7 @@ for pdbfile in ../pdbs/*.pdb; do
     cd ../results/$basename
 
     # Copy CHARMM36m force field to the current directory
-    cp -r /home3/xsnc46/forcefields/charmm36m.ff .
+    cp -r /nobackup/xsnc46/forcefields/charmm36m.ff .
 
     echo -e "\n--- * --- GROMACS format and create topology --- * ---\n"
 
@@ -34,23 +49,23 @@ for pdbfile in ../pdbs/*.pdb; do
 
     # Energy minimization
     gmx_mpi grompp -f ../../mdp_files/minim.mdp -c solv_ions.gro -p topol.top -o em.tpr
-    gmx_mpi mdrun -v -deffnm em -nb gpu
+    mpirun gmx_mpi mdrun -v -deffnm em
 
     echo -e "\n--- * --- * --- Equilibrate --- * --- * ---\n"
 
     echo -e "\n >> NVT\n"
     gmx_mpi grompp -f ../../mdp_files/nvt.mdp -c em.gro -r em.gro -p topol.top -o nvt.tpr
-    gmx_mpi mdrun -deffnm nvt -nb gpu -v
+    mpirun gmx_mpi mdrun -deffnm nvt -v
 
     echo -e "\n >> NPT\n"
     gmx_mpi grompp -f ../../mdp_files/npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
-    gmx_mpi mdrun -deffnm npt -nb gpu -v
+    mpirun gmx_mpi mdrun -deffnm npt -v
 
     echo -e "\n--- * --- * --- Production MD --- * --- * ---\n"
 
     # Set up and run production MD
     gmx_mpi grompp -f ../../mdp_files/md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
-    gmx_mpi mdrun -deffnm md -nb gpu -v
+    mpirun gmx_mpi mdrun -deffnm md -v 
 
     echo "Simulation complete for $basename."
     cd ../../scripts/
