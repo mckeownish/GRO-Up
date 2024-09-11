@@ -1,47 +1,50 @@
 ; nvt.mdp - Extended NVT equilibration with gradual heating
 define               = -DPOSRES  ; Apply position restraints to backbone
 integrator           = md
-nsteps               = 100000    ; Double the number of steps for longer equilibration
-dt                   = 0.002
+nsteps               = 150000    ; Double the number of steps for longer equilibration
+dt                   = 0.001
 
 ; Output control
-nstxout              = 500
-nstvout              = 500
-nstenergy            = 500
-nstlog               = 500
+nstxtcout               = 5000
+nstvout                 = 5000
+nstfout                 = 5000
+nstcalcenergy           = 100
+nstenergy               = 1000
+nstlog                  = 1000
 
 ; Bond parameters
-continuation         = no
-constraint_algorithm = lincs
-constraints          = h-bonds   ; bonds involving H are constrained
-lincs_iter           = 1
-lincs_order          = 4
+continuation            = no
+constraints             = h-bonds
+constraint_algorithm    = LINCS
 
-; Nonbonded settings 
-cutoff-scheme        = Verlet    ; Buffered neighbor searching
-ns_type              = grid      ; search neighboring grid cells
-nstlist              = 10        ; 20 fs, largely irrelevant with Verlet
-rcoulomb             = 1.0       ; short-range electrostatic cutoff (in nm)
-rvdw                 = 1.0       ; short-range van der Waals cutoff (in nm)
-DispCorr             = EnerPres  ; account for cut-off vdW scheme
-
-; Electrostatics
-coulombtype          = PME
-pme_order            = 4         ; cubic interpolation
-fourierspacing       = 0.16      ; grid spacing for FFT
+;
+cutoff-scheme           = Verlet
+nstlist                 = 20
+rlist                   = 1.2
+vdwtype                 = Cut-off
+vdw-modifier            = Force-switch
+rvdw_switch             = 1.0
+rvdw                    = 1.2
+coulombtype             = PME
+rcoulomb                = 1.2
 
 ; Temperature coupling is on
-tcoupl               = V-rescale             ; modified Berendsen thermostat
-tc-grps              = Protein Non-Protein   ; two coupling groups - more accurate
-tau_t                = 0.1     0.1           ; time constant, in ps
-ref_t                = 200     300           ; reference temperature, one for each group, in K
+tcoupl                  = V-rescale
+tc_grps                 = Protein Non-Protein
+tau_t                   = 1.0 1.0
+ref_t                   = 303.15 303.15      ; reference temperature, one for each
+
+nstcomm                 = 100
+comm_mode               = linear
+comm_grps               = Protein Non-Protein
 
 ; Pressure coupling is off
 pcoupl               = no        ; no pressure coupling in NVT
 
 ; Periodic boundary conditions
 pbc                  = xyz       ; 3-D PBC
+
 ; Velocity generation
 gen_vel              = yes       ; assign velocities from Maxwell distribution
-gen_temp             = 300       ; temperature for Maxwell distribution
+gen_temp             = 303.15       ; temperature for Maxwell distribution
 gen_seed             = -1        ; generate a random seed

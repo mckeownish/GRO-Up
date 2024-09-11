@@ -1,0 +1,59 @@
+title                   = CHARMM36 smcl NPT equilibration 
+; Run parameters
+integrator              = md        ; leap-frog integrator
+nsteps                  = 25000000 ; 2 * 25000000 = 50000 ps (50 ns)
+dt                      = 0.002     ; 2 fs
+; Output control
+
+nstxtcout               = 500000
+nstvout                 = 500000
+nstfout                 = 500000
+
+nstcalcenergy           = 1000
+nstenergy               = 5000
+nstlog                  = 5000
+
+nstxout                 = 500000         ; suppress bulky .trr file by specifying 
+nstxout-compressed      = 50000      ; save compressed coordinates every 10.0 ps
+;compressed-x-grps       = System    ; save the whole system
+
+; Bond parameters
+continuation            = yes       ; Restarting after NPT 
+constraint_algorithm    = LINCS     ; holonomic constraints 
+constraints             = h-bonds   ; bonds involving H are constrained
+
+; Neighborsearching
+cutoff-scheme           = Verlet    ; Buffered neighbor searching
+nstlist                 = 40        ; 80 fs, largely irrelevant with Verlet scheme
+vdwtype                 = Cut-off
+vdw-modifier            = Force-switch
+rvdw_switch             = 1.0
+rvdw                    = 1.2
+rlist                   = 1.2
+rcoulomb                = 1.2
+coulombtype             = PME
+
+; Temperature coupling is on
+tcoupl                  = V-rescale
+tc-grps                 = System
+tau_t                   = 1.0      
+ref_t                   = 303.15
+
+; Pressure coupling is on
+pcoupl                  = Parrinello-Rahman     ; Pressure coupling on in NPT
+pcoupltype              = isotropic             ; uniform scaling of box vectors
+tau_p                   = 5.0                   ; time constant, in ps
+ref_p                   = 1.0                   ; reference pressure, in bar
+compressibility         = 4.5e-5                ; isothermal compressibility of water, bar^-1
+
+;
+nstcomm                 = 100
+comm_mode               = linear
+comm_grps               = System
+
+; Periodic boundary conditions
+pbc                     = xyz       ; 3-D PBC
+
+
+; Velocity generation
+gen_vel                 = no        ; Velocity generation is off 
