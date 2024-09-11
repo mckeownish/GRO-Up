@@ -3,18 +3,11 @@ title                   = CHARMM36 smcl NPT equilibration
 integrator              = md        ; leap-frog integrator
 nsteps                  = 25000000 ; 2 * 25000000 = 50000 ps (50 ns)
 dt                      = 0.002     ; 2 fs
-; Output control
 
-nstxtcout               = 500000
-nstvout                 = 500000
-nstfout                 = 500000
 
-nstcalcenergy           = 1000
-nstenergy               = 5000
-nstlog                  = 5000
-
-nstxout                 = 500000         ; suppress bulky .trr file by specifying 
-nstxout-compressed      = 50000      ; save compressed coordinates every 10.0 ps
+nstenergy               = 5000      ; save energies every 10.0 ps
+nstlog                  = 5000      ; update log file every 10.0 ps
+nstxout-compressed      = 5000      ; save compressed coordinates every 10.0 ps
 ;compressed-x-grps       = System    ; save the whole system
 
 ; Bond parameters
