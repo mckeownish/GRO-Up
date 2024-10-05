@@ -11,7 +11,7 @@ for pdbfile in ../pdbs/*.pdb; do
     cd ../results/$basename
 
     # Copy CHARMM36m force field to the current directory
-    cp -r /path/to/charmm36m.ff ./
+    cp -r /home/josh/Documents/GRO-Up/forcefields/charmm36.ff .
 
     echo -e "\n--- * --- GROMACS format and create topology --- * ---\n"
 
@@ -46,12 +46,12 @@ for pdbfile in ../pdbs/*.pdb; do
     $gmxc grompp -f ../../mdp_files/npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
     $gmxc mdrun -deffnm npt -nb gpu -v
 
-    echo -e "\n--- * --- * --- Production MD --- * --- * ---\n"
+    # echo -e "\n--- * --- * --- Production MD --- * --- * ---\n"
 
-    # Set up and run production MD
-    $gmxc grompp -f ../../mdp_files/md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
-    $gmxc mdrun -deffnm md -nb gpu -v
+    # # Set up and run production MD
+    # $gmxc grompp -f ../../mdp_files/md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
+    # $gmxc mdrun -deffnm md -nb gpu -v
 
-    echo "Simulation complete for $basename."
-    cd ../../scripts/
+    # echo "Simulation complete for $basename."
+    # cd ../../scripts/
 done
