@@ -63,11 +63,11 @@ gmx_mpi mdrun -v -deffnm em2 -nb gpu
 echo -e "\n--- * --- * --- Equilibrate --- * --- * ---\n"
 echo -e "\n >> NVT\n"
 gmx_mpi grompp -f ../../mdp_files/nvt.mdp -c em2.gro -r em2.gro -p topol.top -o nvt.tpr
-gmx_mpi mdrun -v -deffnm nvt -nb gpu -pme gpu -bonded gpu -update gpu -ntomp $SLURM_CPUS_PER_TASK
+gmx_mpi mdrun -v -deffnm nvt -nb gpu -ntomp $SLURM_CPUS_PER_TASK
 
 echo -e "\n >> NPT\n"
 gmx_mpi grompp -f ../../mdp_files/npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
-gmx_mpi mdrun -v -deffnm npt -nb gpu -pme gpu -bonded gpu -update gpu -ntomp $SLURM_CPUS_PER_TASK
+gmx_mpi mdrun -v -deffnm npt -nb gpu -ntomp $SLURM_CPUS_PER_TASK
 
 echo -e "\n--- * --- * --- Production MD --- * --- * ---\n"
 gmx_mpi grompp -f ../../mdp_files/md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
