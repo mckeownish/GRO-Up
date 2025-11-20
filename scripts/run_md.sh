@@ -40,38 +40,38 @@ echo -e "\n=== Processing $basename ===\n"
 
 echo -e "\n--- * --- GROMACS format and create topology --- * ---\n"
 # Convert PDB to GROMACS format with AMBER14SB
-echo -e "0\n0" | gmx pdb2gmx -ff amber14sb -f ../../$PDBFILE -o GMX.gro -p topol.top -water tip3p
+echo -e "0\n0" | gmx_mpi pdb2gmx -ff amber14sb -f ../../$PDBFILE -o GMX.gro -p topol.top -water tip3p
 
 echo -e "\n--- * --- * --- Create box and center --- * --- * ---\n"
-gmx editconf -f GMX.gro -o boxed.gro -c -d 2.0 -bt dodecahedron
-gmx editconf -f boxed.gro -o centered.gro -c
+gmx_mpi editconf -f GMX.gro -o boxed.gro -c -d 2.0 -bt dodecahedron
+gmx_mpi editconf -f boxed.gro -o centered.gro -c
 
 echo -e "\n--- * --- * --- Solvate --- * --- * ---\n"
-gmx solvate -cp centered.gro -cs spc216.gro -o solvated.gro -p topol.top
+gmx_mpi solvate -cp centered.gro -cs spc216.gro -o solvated.gro -p topol.top
 
 echo -e "\n--- * --- * --- Add Ions --- * --- * ---\n"
-gmx grompp -f ../../mdp_files/ions.mdp -c solvated.gro -p topol.top -o ions.tpr
-echo 13 | gmx genion -s ions.tpr -o solv_ions.gro -p topol.top -pname NA -nname CL -neutral -conc 0.15
+gmx_mpi grompp -f ../../mdp_files/ions.mdp -c solvated.gro -p topol.top -o ions.tpr
+echo 13 | gmx_mpi genion -s ions.tpr -o solv_ions.gro -p topol.top -pname NA -nname CL -neutral -conc 0.15
 
 echo -e "\n--- * --- * --- Energy Minimisation --- * --- * ---\n"
-gmx grompp -f ../../mdp_files/minim.mdp -c solv_ions.gro -p topol.top -o em1.tpr
-gmx mdrun -v -deffnm em1 -nb gpu
+gmx_mpi grompp -f ../../mdp_files/minim.mdp -c solv_ions.gro -p topol.top -o em1.tpr
+gmx_mpi mdrun -v -deffnm em1 -nb gpu
 
-gmx grompp -f ../../mdp_files/minim2.mdp -c em1.gro -p topol.top -o em2.tpr
-gmx mdrun -v -deffnm em2 -nb gpu
+gmx_mpi grompp -f ../../mdp_files/minim2.mdp -c em1.gro -p topol.top -o em2.tpr
+gmx_mpi mdrun -v -deffnm em2 -nb gpu
 
 echo -e "\n--- * --- * --- Equilibrate --- * --- * ---\n"
 echo -e "\n >> NVT\n"
-gmx grompp -f ../../mdp_files/nvt.mdp -c em2.gro -r em2.gro -p topol.top -o nvt.tpr
-gmx mdrun -v -deffnm nvt -nb gpu -pme gpu -bonded gpu -update gpu -ntomp $SLURM_CPUS_PER_TASK
+gmx_mpi grompp -f ../../mdp_files/nvt.mdp -c em2.gro -r em2.gro -p topol.top -o nvt.tpr
+gmx_mpi mdrun -v -deffnm nvt -nb gpu -pme gpu -bonded gpu -update gpu -ntomp $SLURM_CPUS_PER_TASK
 
 echo -e "\n >> NPT\n"
-gmx grompp -f ../../mdp_files/npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
-gmx mdrun -v -deffnm npt -nb gpu -pme gpu -bonded gpu -update gpu -ntomp $SLURM_CPUS_PER_TASK
+gmx_mpi grompp -f ../../mdp_files/npt.mdp -c nvt.gro -r nvt.gro -t nvt.cpt -p topol.top -o npt.tpr
+gmx_mpi mdrun -v -deffnm npt -nb gpu -pme gpu -bonded gpu -update gpu -ntomp $SLURM_CPUS_PER_TASK
 
 echo -e "\n--- * --- * --- Production MD --- * --- * ---\n"
-gmx grompp -f ../../mdp_files/md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
-gmx mdrun -v -deffnm md -nb gpu -pme gpu -bonded gpu -update gpu -ntomp $SLURM_CPUS_PER_TASK
+gmx_mpi grompp -f ../../mdp_files/md.mdp -c npt.gro -t npt.cpt -p topol.top -o md.tpr
+gmx_mpi mdrun -v -deffnm md -nb gpu -pme gpu -bonded gpu -update gpu -ntomp $SLURM_CPUS_PER_TASK
 
 echo -e "\n=== Simulation complete for $basename ===\n"
 echo -e "Results saved in: results/$basename"
